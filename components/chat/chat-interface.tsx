@@ -23,12 +23,11 @@ export default function ChatInterface({ chatId }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const hasSyncedRef = useRef(false)
   const [isFocused, setIsFocused] = useState(false)
 
-  // Load messages from Firestore ONCE on mount
+  // Load messages from Firestore on mount and keep in sync
   useEffect(() => {
-    if (!chatId || hasSyncedRef.current) return
+    if (!chatId) return
 
     console.log("📡 Loading messages from Firestore for chat:", chatId)
     const q = query(
@@ -37,8 +36,6 @@ export default function ChatInterface({ chatId }: ChatInterfaceProps) {
     )
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      if (hasSyncedRef.current) return // Only sync once
-
       const msgs = snapshot.docs.map(doc => ({
         id: doc.id,
         role: doc.data().role as "user" | "assistant",
@@ -46,7 +43,6 @@ export default function ChatInterface({ chatId }: ChatInterfaceProps) {
       }))
       console.log("📥 Loaded", msgs.length, "messages from Firestore")
       setMessages(msgs)
-      hasSyncedRef.current = true
     })
 
     return () => unsubscribe()
@@ -226,8 +222,8 @@ export default function ChatInterface({ chatId }: ChatInterfaceProps) {
 
                       <div
                         className={`px-5 py-3.5 text-[15px] leading-7 shadow-lg backdrop-blur-sm ${isUser
-                            ? "rounded-[24px_24px_4px_24px] text-white bg-white/10 border border-white/10"
-                            : "rounded-[24px_24px_24px_4px] text-white/90 bg-white/5 border border-white/5"
+                          ? "rounded-[24px_24px_4px_24px] text-white bg-white/10 border border-white/10"
+                          : "rounded-[24px_24px_24px_4px] text-white/90 bg-white/5 border border-white/5"
                           }`}
                         style={{
                           boxShadow: isUser

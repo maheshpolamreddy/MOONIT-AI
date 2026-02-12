@@ -77,13 +77,15 @@ export default function LoadingScreen({
 
   useEffect(() => {
     setMounted(true)
+    // Reset sound tracking on mount to allow sounds to play again
+    soundPlayedRef.current.clear()
   }, [])
 
   // Play sound effects when stage changes
   useEffect(() => {
     if (!mounted) return
 
-    // Prevent playing the same sound twice
+    // Prevent playing the same sound twice in the same session
     if (soundPlayedRef.current.has(stage)) return
     soundPlayedRef.current.add(stage)
 
