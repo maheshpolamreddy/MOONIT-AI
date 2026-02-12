@@ -35,8 +35,8 @@ const playSound = (type: 'ambient' | 'whoosh' | 'charge' | 'launch') => {
         oscillator.type = 'sine'
         oscillator.frequency.setValueAtTime(200, audioContext.currentTime)
         oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.5)
-        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime)
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.5)
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
+        gainNode.gain.exponentialRampToValueAtTime(0.05, audioContext.currentTime + 1.5)
         oscillator.start(audioContext.currentTime)
         oscillator.stop(audioContext.currentTime + 1.5)
         break
@@ -46,8 +46,8 @@ const playSound = (type: 'ambient' | 'whoosh' | 'charge' | 'launch') => {
         oscillator.type = 'sawtooth'
         oscillator.frequency.setValueAtTime(800, audioContext.currentTime)
         oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.4)
-        gainNode.gain.setValueAtTime(0.15, audioContext.currentTime)
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4)
+        gainNode.gain.setValueAtTime(0.4, audioContext.currentTime)
+        gainNode.gain.exponentialRampToValueAtTime(0.05, audioContext.currentTime + 0.4)
         oscillator.start(audioContext.currentTime)
         oscillator.stop(audioContext.currentTime + 0.4)
         break
@@ -57,9 +57,9 @@ const playSound = (type: 'ambient' | 'whoosh' | 'charge' | 'launch') => {
         oscillator.type = 'triangle'
         oscillator.frequency.setValueAtTime(100, audioContext.currentTime)
         oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.6)
-        gainNode.gain.setValueAtTime(0.08, audioContext.currentTime)
-        gainNode.gain.setValueAtTime(0.12, audioContext.currentTime + 0.3)
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.6)
+        gainNode.gain.setValueAtTime(0.25, audioContext.currentTime)
+        gainNode.gain.setValueAtTime(0.35, audioContext.currentTime + 0.3)
+        gainNode.gain.exponentialRampToValueAtTime(0.05, audioContext.currentTime + 0.6)
         oscillator.start(audioContext.currentTime)
         oscillator.stop(audioContext.currentTime + 0.6)
         break
@@ -70,9 +70,9 @@ const playSound = (type: 'ambient' | 'whoosh' | 'charge' | 'launch') => {
         oscillator.frequency.setValueAtTime(50, audioContext.currentTime)
         oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.3)
         oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 1)
-        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime)
-        gainNode.gain.setValueAtTime(0.25, audioContext.currentTime + 0.1)
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1)
+        gainNode.gain.setValueAtTime(0.5, audioContext.currentTime)
+        gainNode.gain.setValueAtTime(0.6, audioContext.currentTime + 0.1)
+        gainNode.gain.exponentialRampToValueAtTime(0.05, audioContext.currentTime + 1)
         oscillator.start(audioContext.currentTime)
         oscillator.stop(audioContext.currentTime + 1)
         break
