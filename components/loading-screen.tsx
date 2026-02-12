@@ -8,60 +8,79 @@ import { Rocket } from "lucide-react"
 const playSound = (type: 'ambient' | 'whoosh' | 'charge' | 'launch') => {
   if (typeof window === 'undefined') return
 
-  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
-  const oscillator = audioContext.createOscillator()
-  const gainNode = audioContext.createGain()
+  try {
+    console.log(`🔊 Attempting to play sound: ${type}`)
 
-  oscillator.connect(gainNode)
-  gainNode.connect(audioContext.destination)
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
 
-  switch (type) {
-    case 'ambient':
-      // Soft ambient hum for text appearance
-      oscillator.type = 'sine'
-      oscillator.frequency.setValueAtTime(200, audioContext.currentTime)
-      oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.5)
-      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime)
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.5)
-      oscillator.start(audioContext.currentTime)
-      oscillator.stop(audioContext.currentTime + 1.5)
-      break
+    // Resume audio context if suspended (browser autoplay policy)
+    if (audioContext.state === 'suspended') {
+      console.log('⚠️ AudioContext suspended, attempting to resume...')
+      audioContext.resume().then(() => {
+        console.log('✅ AudioContext resumed')
+      }).catch(err => {
+        console.error('❌ Failed to resume AudioContext:', err)
+      })
+    }
 
-    case 'whoosh':
-      // Whoosh sound for condensing
-      oscillator.type = 'sawtooth'
-      oscillator.frequency.setValueAtTime(800, audioContext.currentTime)
-      oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.4)
-      gainNode.gain.setValueAtTime(0.15, audioContext.currentTime)
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4)
-      oscillator.start(audioContext.currentTime)
-      oscillator.stop(audioContext.currentTime + 0.4)
-      break
+    const oscillator = audioContext.createOscillator()
+    const gainNode = audioContext.createGain()
 
-    case 'charge':
-      // Charging/powering up sound for rocket
-      oscillator.type = 'triangle'
-      oscillator.frequency.setValueAtTime(100, audioContext.currentTime)
-      oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.6)
-      gainNode.gain.setValueAtTime(0.08, audioContext.currentTime)
-      gainNode.gain.setValueAtTime(0.12, audioContext.currentTime + 0.3)
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.6)
-      oscillator.start(audioContext.currentTime)
-      oscillator.stop(audioContext.currentTime + 0.6)
-      break
+    oscillator.connect(gainNode)
+    gainNode.connect(audioContext.destination)
 
-    case 'launch':
-      // Powerful launch sound
-      oscillator.type = 'sawtooth'
-      oscillator.frequency.setValueAtTime(50, audioContext.currentTime)
-      oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.3)
-      oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 1)
-      gainNode.gain.setValueAtTime(0.2, audioContext.currentTime)
-      gainNode.gain.setValueAtTime(0.25, audioContext.currentTime + 0.1)
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1)
-      oscillator.start(audioContext.currentTime)
-      oscillator.stop(audioContext.currentTime + 1)
-      break
+    switch (type) {
+      case 'ambient':
+        // Soft ambient hum for text appearance
+        oscillator.type = 'sine'
+        oscillator.frequency.setValueAtTime(200, audioContext.currentTime)
+        oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.5)
+        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime)
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.5)
+        oscillator.start(audioContext.currentTime)
+        oscillator.stop(audioContext.currentTime + 1.5)
+        break
+
+      case 'whoosh':
+        // Whoosh sound for condensing
+        oscillator.type = 'sawtooth'
+        oscillator.frequency.setValueAtTime(800, audioContext.currentTime)
+        oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.4)
+        gainNode.gain.setValueAtTime(0.15, audioContext.currentTime)
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4)
+        oscillator.start(audioContext.currentTime)
+        oscillator.stop(audioContext.currentTime + 0.4)
+        break
+
+      case 'charge':
+        // Charging/powering up sound for rocket
+        oscillator.type = 'triangle'
+        oscillator.frequency.setValueAtTime(100, audioContext.currentTime)
+        oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.6)
+        gainNode.gain.setValueAtTime(0.08, audioContext.currentTime)
+        gainNode.gain.setValueAtTime(0.12, audioContext.currentTime + 0.3)
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.6)
+        oscillator.start(audioContext.currentTime)
+        oscillator.stop(audioContext.currentTime + 0.6)
+        break
+
+      case 'launch':
+        // Powerful launch sound
+        oscillator.type = 'sawtooth'
+        oscillator.frequency.setValueAtTime(50, audioContext.currentTime)
+        oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.3)
+        oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 1)
+        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime)
+        gainNode.gain.setValueAtTime(0.25, audioContext.currentTime + 0.1)
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1)
+        oscillator.start(audioContext.currentTime)
+        oscillator.stop(audioContext.currentTime + 1)
+        break
+    }
+
+    console.log(`✅ Sound ${type} played successfully`)
+  } catch (error) {
+    console.error(`❌ Error playing sound ${type}:`, error)
   }
 }
 
