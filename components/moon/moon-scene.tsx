@@ -199,10 +199,10 @@ function MoonSphere() {
     bumpMap.colorSpace = THREE.LinearSRGBColorSpace
   }, [colorMap, bumpMap])
 
-  // Slow rotation for realism
+  // Smooth rotation for visual interest
   useFrame((_state, delta) => {
     if (meshRef.current) {
-      meshRef.current.rotation.y += delta * 0.012
+      meshRef.current.rotation.y += delta * 0.035
     }
   })
 
