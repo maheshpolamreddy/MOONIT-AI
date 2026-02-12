@@ -183,9 +183,15 @@ export default function Navbar({ onLaunch }: { onLaunch: () => void }) {
             <Link
               href="/chat"
               onClick={() => setIsOpen(false)}
-              className="mt-4 px-8 py-3 text-sm font-normal uppercase tracking-[0.1em] text-white/80 rounded-full border border-white/20 hover:bg-white/10 hover:text-white transition-all duration-300"
+              className="mt-8 w-[85%] max-w-sm px-8 py-4 text-base font-semibold uppercase tracking-[0.15em] text-black bg-white rounded-full transition-all duration-300 hover:bg-white/90 active:scale-95 shadow-lg flex items-center justify-center gap-3"
+              style={{
+                boxShadow: "0 4px 20px rgba(255, 255, 255, 0.2)",
+              }}
               suppressHydrationWarning
             >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
               Start Conversation
             </Link>
           </div>

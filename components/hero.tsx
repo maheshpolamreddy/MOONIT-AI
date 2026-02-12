@@ -92,31 +92,35 @@ export default function Hero() {
       {/* CTA Button */}
       <Link
         href="/chat"
-        className="group mt-10 relative px-9 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-white rounded-full overflow-hidden transition-all duration-500"
+        className="group mt-10 relative px-10 py-4 md:px-9 md:py-3.5 text-base md:text-sm font-semibold md:font-medium uppercase tracking-[0.15em] md:tracking-[0.18em] rounded-full overflow-hidden transition-all duration-500 shadow-lg hover:shadow-2xl"
         style={{
-          background: "rgba(255, 255, 255, 0.05)",
-          border: "1px solid rgba(255, 255, 255, 0.15)",
+          background: "rgba(255, 255, 255, 1)",
+          color: "#000",
+          border: "1px solid rgba(255, 255, 255, 1)",
           opacity: isVisible ? 1 : 0,
-          transform: isVisible ? "translateY(0)" : "translateY(20px)",
+          transform: isVisible ? "translateY(0) scale(1)" : "translateY(20px) scale(0.95)",
           transition:
-            "opacity 0.9s ease-out 1s, transform 0.9s ease-out 1s, background 0.4s, border-color 0.4s, box-shadow 0.4s",
+            "opacity 0.9s ease-out 1s, transform 0.9s ease-out 1s, background 0.4s, border-color 0.4s, box-shadow 0.4s, transform 0.2s",
+          boxShadow: "0 4px 20px rgba(255, 255, 255, 0.15)",
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background = "rgba(255, 255, 255, 1)"
-          e.currentTarget.style.color = "#000"
-          e.currentTarget.style.borderColor = "rgba(255, 255, 255, 1)"
-          e.currentTarget.style.boxShadow =
-            "0 0 40px rgba(255, 255, 255, 0.15)"
+          e.currentTarget.style.background = "rgba(255, 255, 255, 0.9)"
+          e.currentTarget.style.transform = "scale(1.05)"
+          e.currentTarget.style.boxShadow = "0 8px 30px rgba(255, 255, 255, 0.25)"
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)"
-          e.currentTarget.style.color = "#fff"
-          e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.15)"
-          e.currentTarget.style.boxShadow = "none"
+          e.currentTarget.style.background = "rgba(255, 255, 255, 1)"
+          e.currentTarget.style.transform = "scale(1)"
+          e.currentTarget.style.boxShadow = "0 4px 20px rgba(255, 255, 255, 0.15)"
         }}
         suppressHydrationWarning
       >
-        Start Conversation
+        <span className="relative z-10 flex items-center justify-center gap-2">
+          <svg className="w-5 h-5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+          Start Conversation
+        </span>
       </Link>
 
       {/* Scroll indicator */}
