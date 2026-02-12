@@ -100,11 +100,17 @@ export default function LoadingScreen({
     setMounted(true)
     // Reset sound tracking on mount to allow sounds to play again
     soundPlayedRef.current.clear()
+
+    // Check if user previously enabled audio
+    const audioPreference = localStorage.getItem('moonit-audio-enabled')
+    if (audioPreference === 'true') {
+      enableAudio()
+    }
   }, [])
 
   // Initialize audio context on user interaction
   const enableAudio = () => {
-    if (typeof window === 'undefined') return
+    if (typeof window === 'undefined' || audioEnabled) return
 
     try {
       const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
@@ -115,15 +121,39 @@ export default function LoadingScreen({
         ctx.resume().then(() => {
           console.log('✅ AudioContext enabled and resumed')
           setAudioEnabled(true)
+          localStorage.setItem('moonit-audio-enabled', 'true')
         })
       } else {
         console.log('✅ AudioContext enabled')
         setAudioEnabled(true)
+        localStorage.setItem('moonit-audio-enabled', 'true')
       }
     } catch (error) {
       console.error('❌ Failed to enable audio:', error)
     }
   }
+
+  // Auto-enable audio on any user interaction
+  useEffect(() => {
+    if (audioEnabled || typeof window === 'undefined') return
+
+    const handleInteraction = () => {
+      enableAudio()
+    }
+
+    // Listen for any user interaction
+    window.addEventListener('click', handleInteraction, { once: true })
+    window.addEventListener('touchstart', handleInteraction, { once: true })
+    window.addEventListener('mousemove', handleInteraction, { once: true })
+    window.addEventListener('keydown', handleInteraction, { once: true })
+
+    return () => {
+      window.removeEventListener('click', handleInteraction)
+      window.removeEventListener('touchstart', handleInteraction)
+      window.removeEventListener('mousemove', handleInteraction)
+      window.removeEventListener('keydown', handleInteraction)
+    }
+  }, [audioEnabled])
 
   // Play sound effects when stage changes
   useEffect(() => {
@@ -225,31 +255,6 @@ export default function LoadingScreen({
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8 }}
         >
-          {/* Click to Enable Sound Overlay */}
-          {!audioEnabled && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/90 backdrop-blur-sm cursor-pointer"
-              onClick={enableAudio}
-            >
-              <motion.div
-                animate={{ scale: [1, 1.05, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="text-center"
-              >
-                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-white/10 border-2 border-white/30 flex items-center justify-center">
-                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-light text-white/90 mb-2">Enable Sound</h3>
-                <p className="text-sm text-white/50">Tap anywhere to continue with audio</p>
-              </motion.div>
-            </motion.div>
-          )}
-
           {/* Starfield Background */}
           {mounted && (
             <div className="absolute inset-0 perspective-[500px]">
