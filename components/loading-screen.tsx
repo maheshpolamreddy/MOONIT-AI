@@ -93,6 +93,8 @@ export default function LoadingScreen({
   const [isExiting, setIsExiting] = useState(false)
   const [mounted, setMounted] = useState(false)
   const soundPlayedRef = useRef<Set<string>>(new Set())
+  const [audioEnabled, setAudioEnabled] = useState(false)
+  const audioContextRef = useRef<AudioContext | null>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -100,29 +102,95 @@ export default function LoadingScreen({
     soundPlayedRef.current.clear()
   }, [])
 
+  // Initialize audio context on user interaction
+  const enableAudio = () => {
+    if (typeof window === 'undefined') return
+
+    try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
+      audioContextRef.current = ctx
+
+      // Resume if suspended
+      if (ctx.state === 'suspended') {
+        ctx.resume().then(() => {
+          console.log('✅ AudioContext enabled and resumed')
+          setAudioEnabled(true)
+        })
+      } else {
+        console.log('✅ AudioContext enabled')
+        setAudioEnabled(true)
+      }
+    } catch (error) {
+      console.error('❌ Failed to enable audio:', error)
+    }
+  }
+
   // Play sound effects when stage changes
   useEffect(() => {
-    if (!mounted) return
+    if (!mounted || !audioEnabled || !audioContextRef.current) return
 
     // Prevent playing the same sound twice in the same session
     if (soundPlayedRef.current.has(stage)) return
     soundPlayedRef.current.add(stage)
 
-    switch (stage) {
-      case 'text':
-        playSound('ambient')
-        break
-      case 'condense':
-        playSound('whoosh')
-        break
-      case 'rocket':
-        playSound('charge')
-        break
-      case 'launch':
-        playSound('launch')
-        break
+    const audioContext = audioContextRef.current
+
+    try {
+      console.log(`🔊 Playing sound: ${stage}`)
+
+      const oscillator = audioContext.createOscillator()
+      const gainNode = audioContext.createGain()
+
+      oscillator.connect(gainNode)
+      gainNode.connect(audioContext.destination)
+
+      switch (stage) {
+        case 'text':
+          oscillator.type = 'sine'
+          oscillator.frequency.setValueAtTime(200, audioContext.currentTime)
+          oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.5)
+          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
+          gainNode.gain.exponentialRampToValueAtTime(0.05, audioContext.currentTime + 1.5)
+          oscillator.start(audioContext.currentTime)
+          oscillator.stop(audioContext.currentTime + 1.5)
+          break
+        case 'condense':
+          oscillator.type = 'sawtooth'
+          oscillator.frequency.setValueAtTime(800, audioContext.currentTime)
+          oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.4)
+          gainNode.gain.setValueAtTime(0.4, audioContext.currentTime)
+          gainNode.gain.exponentialRampToValueAtTime(0.05, audioContext.currentTime + 0.4)
+          oscillator.start(audioContext.currentTime)
+          oscillator.stop(audioContext.currentTime + 0.4)
+          break
+        case 'rocket':
+          oscillator.type = 'triangle'
+          oscillator.frequency.setValueAtTime(100, audioContext.currentTime)
+          oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.6)
+          gainNode.gain.setValueAtTime(0.25, audioContext.currentTime)
+          gainNode.gain.setValueAtTime(0.35, audioContext.currentTime + 0.3)
+          gainNode.gain.exponentialRampToValueAtTime(0.05, audioContext.currentTime + 0.6)
+          oscillator.start(audioContext.currentTime)
+          oscillator.stop(audioContext.currentTime + 0.6)
+          break
+        case 'launch':
+          oscillator.type = 'sawtooth'
+          oscillator.frequency.setValueAtTime(50, audioContext.currentTime)
+          oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.3)
+          oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 1)
+          gainNode.gain.setValueAtTime(0.5, audioContext.currentTime)
+          gainNode.gain.setValueAtTime(0.6, audioContext.currentTime + 0.1)
+          gainNode.gain.exponentialRampToValueAtTime(0.05, audioContext.currentTime + 1)
+          oscillator.start(audioContext.currentTime)
+          oscillator.stop(audioContext.currentTime + 1)
+          break
+      }
+
+      console.log(`✅ Sound ${stage} played`)
+    } catch (error) {
+      console.error(`❌ Error playing sound ${stage}:`, error)
     }
-  }, [stage, mounted])
+  }, [stage, mounted, audioEnabled])
 
   useEffect(() => {
     // Stage 1: Text appears (0ms)
@@ -157,6 +225,31 @@ export default function LoadingScreen({
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8 }}
         >
+          {/* Click to Enable Sound Overlay */}
+          {!audioEnabled && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/90 backdrop-blur-sm cursor-pointer"
+              onClick={enableAudio}
+            >
+              <motion.div
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="text-center"
+              >
+                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-white/10 border-2 border-white/30 flex items-center justify-center">
+                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-light text-white/90 mb-2">Enable Sound</h3>
+                <p className="text-sm text-white/50">Tap anywhere to continue with audio</p>
+              </motion.div>
+            </motion.div>
+          )}
+
           {/* Starfield Background */}
           {mounted && (
             <div className="absolute inset-0 perspective-[500px]">
