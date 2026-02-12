@@ -1,8 +1,69 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Rocket } from "lucide-react"
+
+// Sound effect functions using Web Audio API
+const playSound = (type: 'ambient' | 'whoosh' | 'charge' | 'launch') => {
+  if (typeof window === 'undefined') return
+
+  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+  const oscillator = audioContext.createOscillator()
+  const gainNode = audioContext.createGain()
+
+  oscillator.connect(gainNode)
+  gainNode.connect(audioContext.destination)
+
+  switch (type) {
+    case 'ambient':
+      // Soft ambient hum for text appearance
+      oscillator.type = 'sine'
+      oscillator.frequency.setValueAtTime(200, audioContext.currentTime)
+      oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.5)
+      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.5)
+      oscillator.start(audioContext.currentTime)
+      oscillator.stop(audioContext.currentTime + 1.5)
+      break
+
+    case 'whoosh':
+      // Whoosh sound for condensing
+      oscillator.type = 'sawtooth'
+      oscillator.frequency.setValueAtTime(800, audioContext.currentTime)
+      oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.4)
+      gainNode.gain.setValueAtTime(0.15, audioContext.currentTime)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4)
+      oscillator.start(audioContext.currentTime)
+      oscillator.stop(audioContext.currentTime + 0.4)
+      break
+
+    case 'charge':
+      // Charging/powering up sound for rocket
+      oscillator.type = 'triangle'
+      oscillator.frequency.setValueAtTime(100, audioContext.currentTime)
+      oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.6)
+      gainNode.gain.setValueAtTime(0.08, audioContext.currentTime)
+      gainNode.gain.setValueAtTime(0.12, audioContext.currentTime + 0.3)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.6)
+      oscillator.start(audioContext.currentTime)
+      oscillator.stop(audioContext.currentTime + 0.6)
+      break
+
+    case 'launch':
+      // Powerful launch sound
+      oscillator.type = 'sawtooth'
+      oscillator.frequency.setValueAtTime(50, audioContext.currentTime)
+      oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.3)
+      oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 1)
+      gainNode.gain.setValueAtTime(0.2, audioContext.currentTime)
+      gainNode.gain.setValueAtTime(0.25, audioContext.currentTime + 0.1)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1)
+      oscillator.start(audioContext.currentTime)
+      oscillator.stop(audioContext.currentTime + 1)
+      break
+  }
+}
 
 export default function LoadingScreen({
   onComplete,
@@ -12,10 +73,35 @@ export default function LoadingScreen({
   const [stage, setStage] = useState<"text" | "condense" | "rocket" | "launch">("text")
   const [isExiting, setIsExiting] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const soundPlayedRef = useRef<Set<string>>(new Set())
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Play sound effects when stage changes
+  useEffect(() => {
+    if (!mounted) return
+
+    // Prevent playing the same sound twice
+    if (soundPlayedRef.current.has(stage)) return
+    soundPlayedRef.current.add(stage)
+
+    switch (stage) {
+      case 'text':
+        playSound('ambient')
+        break
+      case 'condense':
+        playSound('whoosh')
+        break
+      case 'rocket':
+        playSound('charge')
+        break
+      case 'launch':
+        playSound('launch')
+        break
+    }
+  }, [stage, mounted])
 
   useEffect(() => {
     // Stage 1: Text appears (0ms)
